@@ -40,10 +40,8 @@ class Charactor:
         )
         if self.health > 0:
             print('Текущее здоровье {}'.format(self.health))
-            return self.health
         else:
-            dead = True
-            return (self.is_alive(dead))
+            print('{} погиб.'.format(self.name))
 
     def special(self):
         raise NotImplementedError('Задайте метод special в классе '
@@ -56,13 +54,8 @@ class Charactor:
                 f'Атака - {self.attack}\n'
                 f'Специальный навык - {self.SPECIAL_SKILL}')
 
-    def is_alive(self, dead: bool = False) -> bool:
-        if dead == False:
-            live = True
-        else:
-            print(f'{self.name} погиб.')
-            live = False
-        return live
+    def is_alive(self) -> bool:
+        return self.health > 0
 
 
 @dataclass
@@ -288,30 +281,30 @@ def battle(hero, enemy):
     """Запускает бой между игроком и врагом."""
     print('Эпичная битва между {} и {}!'.format(hero.name, enemy.name))
 
-    while hero.is_alive(hero) and enemy.is_alive(enemy):
+    while hero.is_alive() and enemy.is_alive():
 
         # Ход игрока
-        hero_action = hero.choose_action(hero)
+        hero_action = hero.choose_action()
         if hero_action == 'attack':
-            damage = hero.attack_function(hero)
-            enemy.take_damage(enemy, damage)
+            damage = hero.attack_function()
+            enemy.take_damage(damage)
         elif hero_action == 'defense':
-            hero.defense_function(hero)
+            hero.defense_function()
         elif hero_action == "special":
-            hero.special(hero)
+            hero.special()
             print('{} использует специальный навык'.format(
                 hero.name))
 
         # Ход врага
         enemy_action = choice(['attack', 'defense', 'special'])
         if enemy_action == 'attack':
-            damage = enemy.attack_function(enemy)
-            hero.take_damage(hero, damage)
+            damage = enemy.attack_function()
+            hero.take_damage(damage)
         elif enemy_action == 'defense':
-            enemy.defense_function(enemy)
+            enemy.defense_function()
         elif enemy_action == 'special':
-            damage = enemy.special(enemy)
-            hero.take_damage(hero, damage)
+            damage = enemy.special()
+            hero.take_damage(damage)
             print('{} использует специальный навык {} на {} урона!'.format(
                 enemy.name, hero.name, damage))
 
