@@ -88,7 +88,7 @@ class Hero(Charactor):
             if action in action_list:
                 selected_action = action_list[action]
                 if selected_action == 'status':
-                    print(self.status(self))
+                    print(self.status())
                 else:
                     return selected_action
             else:
@@ -226,8 +226,8 @@ def choice_char_class() -> Hero:
         char_class = None
         while not char_class:
             try:
-                char_class: Hero = game_classes[selected_class]
-                print(char_class.status(char_class))
+                char_class: Hero = game_classes[selected_class]()
+                print(char_class.status())
                 approve_choice = input('Нажми (Y), чтобы подтвердить '
                                        'выбор, или любую другую кнопку, '
                                        'чтобы выбрать другого '
@@ -261,7 +261,7 @@ def start_training(hero):
 
         cmd = input('Введи команду: ')
         if cmd in commands:
-            result = commands[cmd](hero)
+            result = commands[cmd]()
             print(result)
         elif cmd == 'skip':
             pass
@@ -272,7 +272,7 @@ def start_training(hero):
 
 def meet_enemy(enemy_list: list[Enemy] = [Enemy, HeadCrab]) -> Enemy:
     """Выберает врога из списка классов Enemy."""
-    enemy = choice(enemy_list)
+    enemy = choice(enemy_list)()
     print(f'Вы встретили врага - {enemy.name}!')
     return enemy
 
@@ -309,11 +309,11 @@ def battle(hero, enemy):
                 enemy.name, hero.name, damage))
 
         # Вывести ХП в конце каждого хода
-        print('У {} сейчас {} HP'.format(hero.health, hero.name))
-        print('У {} сейчас {} HP'.format(enemy.health, enemy.name))
+        print('У {} сейчас {} HP'.format(hero.name, hero.health))
+        print('У {} сейчас {} HP'.format(enemy.name, enemy.health))
 
     # Вывод результата битвы
-    if hero.is_alive(hero):
+    if hero.is_alive():
         print('{} победил в битве'.format(hero.name))
     else:
         print('{} победил в битве'.format(enemy.name))
@@ -330,4 +330,4 @@ if __name__ == '__main__':
     print('Берсерк, Маг, Травница')
     hero: Hero = choice_char_class()
     print(start_training(hero))
-    battle(hero, meet_enemy())
+    print(battle(hero, meet_enemy()))
