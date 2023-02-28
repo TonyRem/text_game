@@ -56,7 +56,7 @@ class Charactor:
                 f'Атака - {self.attack}\n'
                 f'Специальный навык - {self.SPECIAL_SKILL}')
 
-    def is_alive(self, dead: bool = False) -> str:
+    def is_alive(self, dead: bool = False) -> bool:
         if dead == False:
             live = True
         else:
@@ -213,7 +213,7 @@ class HeadCrab(Enemy):
         return poison_split
 
 
-def choice_char_class(payer_name: str) -> Hero:
+def choice_char_class() -> Hero:
     """
     Возвращает
     класс персонажа.
@@ -295,11 +295,8 @@ def battle(hero, enemy):
         if hero_action == 'attack':
             damage = hero.attack_function(hero)
             enemy.take_damage(enemy, damage)
-            print('{} атаковал {} на {} урона!'.format(
-                hero.name, enemy.name, damage))
         elif hero_action == 'defense':
             hero.defense_function(hero)
-            print('{} защищается!'.format(hero.name))
         elif hero_action == "special":
             hero.special(hero)
             print('{} использует специальный навык'.format(
@@ -310,12 +307,9 @@ def battle(hero, enemy):
         if enemy_action == 'attack':
             damage = enemy.attack_function(enemy)
             hero.take_damage(hero, damage)
-            print('{} атаковал {} на {} урона!'.format(
-                enemy.name, hero.name, damage))
-        elif enemy_action == "defense":
+        elif enemy_action == 'defense':
             enemy.defense_function(enemy)
-            print('{} защищается!'.format(enemy.name))
-        elif enemy_action == "special":
+        elif enemy_action == 'special':
             damage = enemy.special(enemy)
             hero.take_damage(hero, damage)
             print('{} использует специальный навык {} на {} урона!'.format(
@@ -329,7 +323,7 @@ def battle(hero, enemy):
     if hero.is_alive(hero):
         print('{} победил в битве'.format(hero.name))
     else:
-        print('{} has won the battle!'.format(enemy.name))
+        print('{} победил в битве'.format(enemy.name))
 
 
 if __name__ == '__main__':
@@ -341,6 +335,6 @@ if __name__ == '__main__':
           'Сейчас твое здоровье — 20, атака — 5 и защита — 5.')
     print('Ты можешь выбрать один из трёх путей силы:')
     print('Берсерк, Маг, Травница')
-    hero: Hero = choice_char_class(payer_name)
+    hero: Hero = choice_char_class()
     print(start_training(hero))
     battle(hero, meet_enemy())
