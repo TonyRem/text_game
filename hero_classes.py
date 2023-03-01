@@ -1,12 +1,12 @@
 """
-Содержит родительский класс Charactor и классы героев, которых может 
+Содержит родительский класс Charactor и классы героев, которых может
 выбрать игрок.
 """
-
-
 from dataclasses import dataclass
 from random import randint
 from typing import Optional
+
+import text
 
 
 @dataclass
@@ -25,16 +25,15 @@ class Charactor:
     def attack_function(self) -> int:
         """Выводит значение нанесенного урона."""
         value_attack: int = self.attack + randint(*self.RANGE_VALUE_ATTACK)
-        print(f'{self.name} нанёс урон, равный {value_attack}')
+        print(text.ATTACK_DESC_MSG.format(self.name, value_attack))
         return value_attack
 
     def defense_function(self) -> None:
+        """Увеличивает защиту персонажа."""
         defense_buff: int = randint(*self.RANGE_VALUE_DEFENSE)
         self.defense += defense_buff
-        print(
-            f'<{self.name} увеличил защиту на {defense_buff}. '
-            f'теперь он может заблокировать {self.defense} урона.>'
-        )
+        print(text.DEFENSE_DESC_MSG.format(
+            self.name, defense_buff, self.defense))
 
     def take_damage(self, damage) -> None:
         """
@@ -42,25 +41,25 @@ class Charactor:
         """
         damage_value: int = damage - self.defense
         defense_value: int = damage - damage_value
-        if damage_value > 0:
-            if self.health > damage_value:
-                self.health -= damage_value
-            else:
-                self.health = 0
-                print('{} погиб.'.format(self.name))
-            print(
-                f'<{self.name} получил урон в размере '
-                '{}. Заблокировано {} урона.>'.format(
-                    damage_value,  defense_value)
-            )
-        else:
-            print(f'<Заблокирован весь урон. '
-                  f'{self.name} не получил повреждений.>')
+
+        if damage_value >= self.health:
+            self.health = 0
+            print('{} погиб.'.format(self.name))
+            return
+
+        if damage_value <= 0:
+            print(text.TAKE_ZERO_DMG_MSG.format(self.name))
+            return
+
+        self.health -= damage_value
+        print(text.TAKE_DMG_MSG.format(self.name, damage_value,
+                                       defense_value))
 
     def special(self) -> Optional[int]:
         """Задает специальный прием персонажа."""
-        raise NotImplementedError('Задайте метод special в классе '
-                                  f'{type(self).__name__}')
+        raise NotImplementedError(text.NOT_INPL_SPECIAL_MSG.format(
+            type(self).__name__
+        ))
 
     def is_alive(self) -> bool:
         """Проверяет жив ли персонаж."""
@@ -73,8 +72,7 @@ class Hero(Charactor):
     health: int = 50
     defense: int = 2
     attack: int = 5
-    brief_description: str = ('отважный искатель приключений, ходят слухи, '
-                              'что неплохо поет')
+    brief_description: str = text.BRIEF_DESCRIPTION_HERO
     special_counter: int = 0
     level: int = 0
 
@@ -95,44 +93,31 @@ class Hero(Charactor):
             'surrender'
         ]
         while True:
-            action: str = input('Твой ход.\n' 'Тебе доступны действия:\n'
-                                'attack — чтобы атаковать противника, \n'
-                                'defense — чтобы увеличить защиту, \n'
-                                'special — чтобы использовать свою суперсилу,  \n'
-                                'status — чтобы увидеть информацию о '
-                                'персонаже.\n'
-                                'surrender — чтобы сдаться. : ').lower()
-            if action in action_list:
-                selected_action = action
-                if selected_action == 'status':
-                    self.status()
-                else:
-                    return selected_action
-            else:
-                print(f'Действие {action} не найдено, повтори ввод.')
+            action: str = input(text.SELECT_ACTION_MSG).lower()
+            if action not in action_list:
+                print(text.ACTION_NOT_FOUND.format(action))
+            if action == 'status':
+                self.status()
+                continue
+            return action
 
     def special(self) -> None:
-        """Задает специальный прием персонажа."""      
-        print(f'{self.name} использовал навык "{self.SPECIAL_SKILL}". '
-              'Как красиво!')
+        """Задает специальный прием персонажа."""
+        print(text.SPECIAL_MSG_HERO.format(self.name, self.SPECIAL_SKILL))
         if self.special_counter < 1:
             self.special_counter += 1
         else:
             self.health = 100
             self.defense = 15
             self.attack = 35
-            print(f'{self.name} впадает в экстаз от пения.\n'
-                  'Здоровье увеличено до 100\n'
-                  'Защита увеличена до 15\n'
-                  'Атака увеличена до 25')
+            print(text.SPECIAL_MSG_HERO_BUFFED.format(self.name))
 
     def status(self) -> None:
         """Выводит информацию о персонаже."""
-        print(f'\n{self.name} - {self.brief_description}.\n'
-              f'Здоровье - {self.health}\n'
-              f'Защита - {self.defense}\n'
-              f'Атака - {self.attack}\n'
-              f'Специальный навык - {self.SPECIAL_SKILL}')
+        print(text.STATUS_MSG.format(
+            self.name, self.brief_description, self.health, self.defense,
+            self.attack, self.SPECIAL_SKILL
+        ))
 
     def recovery(self) -> None:
         """Восстанавливает значения характеристик по умолчанию после битвы."""
@@ -147,33 +132,27 @@ class Hero(Charactor):
         уровня.
         """
         self.level += 1
-        print('Уровень повышен!\n'
-              'Текущий уровень {}\n'.format(self.level))
+        print(text.LEVEL_UP_MSG.format(self.level))
         attribute_up_list: list[str] = [
             'attack',
             'defense',
             'health'
         ]
-        level_up_result: bool = False
-        while not level_up_result:
-            attribute_up = input('Выбери атрибут для улучшения:\n'
-                                 'Здоровье +5 - команда health\n'
-                                 'Защита +2 - команда defense\n'
-                                 'Атака + 4 - команда Attack\n'
-                                 ).lower()
-            if attribute_up in attribute_up_list:
-                if attribute_up == 'health':
-                    self.DEFAULT_HEALTH += 5
-                    level_up_result = True
-                elif attribute_up == 'defense':
-                    self.DEFAULT_DEFENSE += 2
-                    level_up_result = True
-                else:
-                    self.DEFAULT_ATTACK += 4
-                    level_up_result = True
+
+        while True:
+            attribute_up = input(text.SELECT_ATTRIBUTE_MSG).lower()
+            if attribute_up not in attribute_up_list:
+                print(text.CMD_NOT_FOUND.format(attribute_up))
+
+            if attribute_up == 'health':
+                self.DEFAULT_HEALTH += 5
+            elif attribute_up == 'defense':
+                self.DEFAULT_DEFENSE += 2
             else:
-                print(f'Команда {attribute_up} не найдена, повтори ввод.')
-            self.status
+                self.DEFAULT_ATTACK += 4
+
+            self.status()
+            break
 
 
 @dataclass
@@ -182,8 +161,7 @@ class Berserk(Hero):
     health: int = 80
     defense: int = 2
     attack: int = 9
-    brief_description: str = ('кровавый клинок (но вот чья кровь?), '
-                              'способен нанести себе урон и увеличить атаку')
+    brief_description: str = text.BRIEF_DESCRIPTION_BERSERK
 
     RANGE_VALUE_ATTACK: tuple[int, int] = (5, 10)
     RANGE_VALUE_DEFENSE: tuple[int, int] = (5, 8)
@@ -193,12 +171,11 @@ class Berserk(Hero):
     DEFAULT_ATTACK: int = 9
 
     def special(self) -> None:
-        """Задает специальный прием персонажа.""" 
+        """Задает специальный прием персонажа."""
         self.health -= 5
         self.attack += 15
-        print(f'{self.name} использовал навык "{self.SPECIAL_SKILL}".\n'
-              f'Здоровье уменьшено на 5 ({self.health}), '
-              f'Атака увеличена на 15 ({self.attack}).')
+        print(text.SPECIAL_MSG_BERSERK.format(self.name, self.SPECIAL_SKILL,
+                                              self.health, self.attack))
 
 
 @dataclass
@@ -207,8 +184,7 @@ class Mage(Hero):
     health: int = 70
     defense: int = 2
     attack: int = 10
-    brief_description: str = ('ученик Дамблдора, в университете подсел на '
-                              'зелье, повышающее атаку')
+    brief_description: str = text.BRIEF_DESCRIPTION_MAGE
 
     RANGE_VALUE_ATTACK: tuple[int, int] = (5, 15)
     RANGE_VALUE_DEFENSE: tuple[int, int] = (5, 10)
@@ -218,10 +194,10 @@ class Mage(Hero):
     DEFAULT_ATTACK: int = 10
 
     def special(self) -> None:
-        """Задает специальный прием персонажа.""" 
+        """Задает специальный прием персонажа."""
         self.attack += 10
-        print(f'{self.name} использовал навык "{self.SPECIAL_SKILL}".\n'
-              f'Атака увеличена на 10 ({self.attack}).')
+        print(text.SPECIAL_MSG_MAGE.format(self.name, self.SPECIAL_SKILL,
+                                           self.attack))
 
 
 @dataclass
@@ -230,7 +206,7 @@ class Healer(Hero):
     health: int = 75
     defense: int = 4
     attack: int = 8
-    brief_description: str = 'знаток травки, способна пополнять здоровье'
+    brief_description: str = text.BRIEF_DESCRIPTION_HEALER
 
     RANGE_VALUE_ATTACK: tuple[int, int] = (5, 15)
     RANGE_VALUE_DEFENSE: tuple[int, int] = (5, 10)
@@ -240,15 +216,13 @@ class Healer(Hero):
     DEFAULT_ATTACK: int = 8
 
     def special(self) -> None:
-        """Задает специальный прием персонажа.""" 
+        """Задает специальный прием персонажа."""
         if self.health < 110:
-            self.health += 15
-            print(f'{self.name} использовала навык "{self.SPECIAL_SKILL}".\n'
-                  f'Здоровье увеличено на 15 ({self.health}).\n'
-                  '(Вы не сможете пополнять здоровье, если оно больше '
-                  ' или равно 110)')
+            self.health += 30
+            print(text.SPECIAL_MSG_HEALER.format(self.name, self.SPECIAL_SKILL,
+                                                 self.health))
         else:
             self.health = 60
-            print(f'{self.name} использовала навык "{self.SPECIAL_SKILL}".\n'
-                  'Минздрав предупреждал, а ты не слушал и словил передоз. '
-                  f'Здоровье уменьшено до ({self.health}).')
+            print(text.SPECIAL_MSG_HEALER_BUFFED.format(
+                self.name, self.SPECIAL_SKILL, self.health
+            ))

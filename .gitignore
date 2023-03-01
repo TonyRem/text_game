@@ -130,3 +130,5 @@ dmypy.json
 
 #Vscode project settings
 .Vscode
+
+pygame_module.py
