@@ -44,11 +44,10 @@ class Enemy(Charactor):
             print(text.TAKE_DMG_MSG.format(other.name, damage_value,
                                            defense_value))
 
-    def special(self) -> int:
+    def special(self, other: Optional[Charactor] = None) -> None:
         """Задает специальный прием персонажа."""
         print(text.SPECIAL_MSG_ENEMY.format(self.name, self.SPECIAL_SKILL))
         damage: int = 1
-        return damage
 
 
 @dataclass
@@ -63,11 +62,27 @@ class HeadCrab(Enemy):
     RANGE_VALUE_DEFENSE: tuple[int, int] = (1, 3)
     SPECIAL_SKILL: str = 'отравляющий плевок в лицо'
 
-    def special(self) -> int:
+    def special(self, other: Optional[Charactor] = None) -> None:
         """Задает специальный прием персонажа."""
-        print(text.SPECIAL_MSG_HEADCRAB.format(self.name, self.SPECIAL_SKILL))
-        poison_split: int = 15
-        return poison_split
+        if other:
+            print(text.SPECIAL_MSG_HEADCRAB.format(
+                self.name, self.SPECIAL_SKILL))
+            poison_split: int = 15
+            damage_value: int = poison_split - other.defense
+            defense_value: int = poison_split - damage_value
+
+            if damage_value >= other.health:
+                other.health = 0
+                print('{} погиб.'.format(other.name))
+                return
+
+            if damage_value <= 0:
+                print(text.TAKE_ZERO_DMG_MSG.format(other.name))
+                return
+
+            other.health -= damage_value
+            print(text.TAKE_DMG_MSG.format(other.name, damage_value,
+                                           defense_value))
 
 
 ENEMY_LIST = [Enemy, HeadCrab]

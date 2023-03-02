@@ -5,7 +5,7 @@
 from random import choice
 from typing import Type, Optional
 
-
+from graphic_arts.start_game_banner import run_screensaver
 from hero_classes import Hero, Mage, Berserk, Healer
 from enemy_classes import Enemy, ENEMY_LIST
 import text
@@ -91,17 +91,16 @@ def battle(hero: Hero, enemy: Enemy):
             hero.health = 0
 
         # Ход врага
+
         print('')
-        enemy_action = choice(['attack', 'defense', 'special'])
-        if enemy_action == 'attack':
-            enemy.attack_function(hero)
-        elif enemy_action == 'defense':
-            enemy.defense_function()
-        else:
-            damage = enemy.special()
-            # hero.take_damage(damage)
-            print('{} использует специальный навык {} на {} урона!'.format(
-                enemy.name, hero.name, damage))
+        if hero.is_alive() and enemy.is_alive():
+            enemy_action = choice(['attack', 'defense', 'special'])
+            if enemy_action == 'attack':
+                enemy.attack_function(hero)
+            elif enemy_action == 'defense':
+                enemy.defense_function()
+            else:
+                enemy.special(hero)
 
         # Вывод ХП в конце каждого хода
         print(text.ROUND_RESULT.format(hero.name, hero.health,
@@ -113,8 +112,9 @@ def battle(hero: Hero, enemy: Enemy):
     if hero.is_alive():
         print('{} победил в битве'.format(hero.name))
         print('Здоровье восстановлено.\n')
-        hero.level_up()
         hero.recovery()
+        hero.level_up()
+
     else:
         print('{} победил в битве'.format(enemy.name))
 
@@ -140,6 +140,7 @@ def path(hero) -> None:
 
 
 if __name__ == '__main__':
+    run_screensaver()
     print('Приветствую тебя, искатель приключений!')
     print('Сейчас у тебя класс Новичок, но ты можешь выбрать один из трех '
           'путей силы:')
