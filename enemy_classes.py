@@ -14,7 +14,7 @@ import text
 class Enemy(Charactor):
     name: str = 'Гоблин'
     health: int = 80
-    defense: int = 2
+    defense: int = 5
     attack: int = 5
     brief_description: str = text.BRIEF_DESCRIPTION_ENEMY
 
@@ -55,7 +55,7 @@ class Enemy(Charactor):
 class HeadCrab(Enemy):
     name: str = 'Хед краб'
     health: int = 110
-    defense: int = 3
+    defense: int = 8
     attack: int = 9
     brief_description: str = text.BRIEF_DESCRIPTION_HEADCRAB
 

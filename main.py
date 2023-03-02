@@ -5,13 +5,12 @@
 from random import choice
 from typing import Type, Optional
 
-# from graphic_arts.start_game_banner import run_screensaver
 from hero_classes import Hero, Mage, Berserk, Healer
 from enemy_classes import Enemy, ENEMY_LIST
 import text
 
 
-def choice_chosen_hero() -> Hero:
+def choice_hero_class() -> Hero:
     """
     Возвращает выбранный игроком
     класс персонажа.
@@ -35,7 +34,7 @@ def choice_chosen_hero() -> Hero:
 
 def start_training(hero) -> None:
     """
-    Принимает на вход класс персонажа из функции choice_chosen_hero.
+    Принимает на вход класс персонажа из функции choice_hero_class.
     Запускает тренировку, котороая завершится при вводе игроком команды skip
     """
     print(text.TRAINING_MSG)
@@ -133,23 +132,19 @@ def path(hero) -> None:
         path_choice = input(text.PATH_MSG)
         if path_choice == 'exit':
             break
-        if path_choice in path_list:
-            battle(hero, meet_enemy())
-        else:
+        if path_choice not in path_list:
             print(text.CMD_NOT_FOUND.format(path_choice))
+            continue
+        battle(hero, meet_enemy())
     print(text.GAME_OVER)
 
 
 if __name__ == '__main__':
-    # run_screensaver()
     print('Приветствую тебя, искатель приключений!')
-    # print('Прежде чем начать игру...')
-    # payer_name: str = input('...назови себя: ')
-    # print(f'Здравствуй, {payer_name}!')
     print('Сейчас у тебя класс Новичок, но ты можешь выбрать один из трех '
           'путей силы:')
     print('Берсерк, Маг, Травница')
-    hero: Hero = choice_chosen_hero()
+    hero: Hero = choice_hero_class()
     start_training(hero)
     print('')
     print('Вы отправились в опасное приключение.\n')
