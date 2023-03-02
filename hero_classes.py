@@ -22,11 +22,11 @@ class Charactor:
     SPECIAL_SKILL: str = 'Ничего'
     SPECIAL_BUFF: int = 0
 
-    def attack_function(self) -> int:
-        """Выводит значение нанесенного урона."""
-        value_attack: int = self.attack + randint(*self.RANGE_VALUE_ATTACK)
-        print(text.ATTACK_DESC_MSG.format(self.name, value_attack))
-        return value_attack
+    def attack_function(self) -> None:
+        """Рассчитывают нанесенный урон"""
+        raise NotImplementedError(text.NOT_INPL_ATTACK_MSG.format(
+            type(self).__name__
+        ))
 
     def defense_function(self) -> None:
         """Увеличивает защиту персонажа."""
@@ -34,26 +34,6 @@ class Charactor:
         self.defense += defense_buff
         print(text.DEFENSE_DESC_MSG.format(
             self.name, defense_buff, self.defense))
-
-    def take_damage(self, damage) -> None:
-        """
-        Принимает урон, нанесенный противником и рассчитывает повреждения.
-        """
-        damage_value: int = damage - self.defense
-        defense_value: int = damage - damage_value
-
-        if damage_value >= self.health:
-            self.health = 0
-            print('{} погиб.'.format(self.name))
-            return
-
-        if damage_value <= 0:
-            print(text.TAKE_ZERO_DMG_MSG.format(self.name))
-            return
-
-        self.health -= damage_value
-        print(text.TAKE_DMG_MSG.format(self.name, damage_value,
-                                       defense_value))
 
     def special(self) -> Optional[int]:
         """Задает специальный прием персонажа."""
@@ -83,6 +63,28 @@ class Hero(Charactor):
     DEFAULT_DEFENSE: int = 2
     DEFAULT_ATTACK: int = 5
 
+    def attack_function(self, other: Optional[Charactor] = None) -> None:
+        """Рассчитывают нанесенный урон"""
+        value_attack: int = self.attack + randint(*self.RANGE_VALUE_ATTACK)
+        print(text.ATTACK_DESC_MSG.format(self.name, value_attack))
+
+        if other:
+            damage_value: int = value_attack - other.defense
+            defense_value: int = value_attack - damage_value
+
+            if damage_value >= other.health:
+                other.health = 0
+                print('{} погиб.'.format(other.name))
+                return
+
+            if damage_value <= 0:
+                print(text.TAKE_ZERO_DMG_MSG.format(other.name))
+                return
+
+            other.health -= damage_value
+            print(text.TAKE_DMG_MSG.format(other.name, damage_value,
+                                           defense_value))
+
     def choose_action(self) -> Optional[str]:
         """Возвращает действие игрока в битвах."""
         action_list: list[str] = [
@@ -95,7 +97,7 @@ class Hero(Charactor):
         while True:
             action: str = input(text.SELECT_ACTION_MSG).lower()
             if action not in action_list:
-                print(text.ACTION_NOT_FOUND.format(action))
+                print(text.CMD_NOT_FOUND.format(action))
             if action == 'status':
                 self.status()
                 continue

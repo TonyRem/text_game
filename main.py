@@ -7,7 +7,7 @@ from typing import Type, Optional
 
 # from graphic_arts.start_game_banner import run_screensaver
 from hero_classes import Hero, Mage, Berserk, Healer
-from enemy_classes import Enemy, HeadCrab
+from enemy_classes import Enemy, ENEMY_LIST
 import text
 
 
@@ -53,14 +53,14 @@ def start_training(hero) -> None:
         if training_cmd not in commands:
             print(text.CMD_NOT_FOUND.format(training_cmd))
             continue
-        result = commands[training_cmd]()
-        print(result)
+        result = commands[training_cmd]
+        result()
 
     hero.recovery()
     print('Тренировка окончена.')
 
 
-def meet_enemy(enemy_list: list[Type[Enemy]] = [Enemy, HeadCrab]) -> Enemy:
+def meet_enemy(enemy_list: list[Type[Enemy]] = ENEMY_LIST) -> Enemy:
     """Выберает врага из списка классов Enemy."""
     print('')
     enemy = choice(enemy_list)()
@@ -81,8 +81,7 @@ def battle(hero: Hero, enemy: Enemy):
         print('')
         hero_action: Optional[str] = hero.choose_action()
         if hero_action == 'attack':
-            damage: int = hero.attack_function()
-            enemy.take_damage(damage)
+            hero.attack_function(enemy)
         elif hero_action == 'defense':
             hero.defense_function()
         elif hero_action == "special":
@@ -96,13 +95,12 @@ def battle(hero: Hero, enemy: Enemy):
         print('')
         enemy_action = choice(['attack', 'defense', 'special'])
         if enemy_action == 'attack':
-            damage = enemy.attack_function()
-            hero.take_damage(damage)
+            enemy.attack_function(hero)
         elif enemy_action == 'defense':
             enemy.defense_function()
-        elif enemy_action == 'special':
+        else:
             damage = enemy.special()
-            hero.take_damage(damage)
+            # hero.take_damage(damage)
             print('{} использует специальный навык {} на {} урона!'.format(
                 enemy.name, hero.name, damage))
 

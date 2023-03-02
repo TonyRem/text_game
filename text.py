@@ -1,15 +1,15 @@
 # Сообщения классов Charactor и Hero
 # attack
+NOT_INPL_ATTACK_MSG: str = 'Задайте метод attack_function в классе {}'
 ATTACK_DESC_MSG: str = '<{} нанёс урон, равный {}>'
-# defense
-DEFENSE_DESC_MSG: str = ('<{} увеличил защиту на {}. '
-                         'теперь он может заблокировать {} урона.>')
-# take_damage
 TAKE_DMG_MSG: str = ('<{} получил урон в размере '
                      '{}. Заблокировано {} урона.>')
 TAKE_ZERO_DMG_MSG: str = ('<Заблокирован весь урон. '
                           '{} не получил повреждений.>')
-# special if not imp
+# defense
+DEFENSE_DESC_MSG: str = ('<{} увеличил защиту на {}. '
+                         'теперь он может заблокировать {} урона.>')
+# special if not impl
 NOT_INPL_SPECIAL_MSG: str = 'Задайте метод special в классе {}'
 # choose_action
 SELECT_ACTION_MSG: str = ('Твой ход.\n' 'Тебе доступны действия:\n'
