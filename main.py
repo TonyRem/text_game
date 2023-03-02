@@ -5,6 +5,7 @@
 from random import choice
 from typing import Type, Optional
 
+
 from hero_classes import Hero, Mage, Berserk, Healer
 from enemy_classes import Enemy, ENEMY_LIST
 import text
@@ -23,8 +24,7 @@ def choice_hero_class() -> Hero:
     while True:
         selected_class: str = input(text.SELECTED_MSG)
         if selected_class not in GAME_CLASSES:
-            print(f'Класс {selected_class} не найден, '
-                  'повтори ввод: ')
+            print(text.CMD_NOT_FOUND.format(selected_class))
             continue
         chosen_hero: Hero = GAME_CLASSES[selected_class]()
         chosen_hero.status()

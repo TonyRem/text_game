@@ -98,6 +98,7 @@ class Hero(Charactor):
             action: str = input(text.SELECT_ACTION_MSG).lower()
             if action not in action_list:
                 print(text.CMD_NOT_FOUND.format(action))
+                continue
             if action == 'status':
                 self.status()
                 continue
@@ -145,7 +146,7 @@ class Hero(Charactor):
             attribute_up = input(text.SELECT_ATTRIBUTE_MSG).lower()
             if attribute_up not in attribute_up_list:
                 print(text.CMD_NOT_FOUND.format(attribute_up))
-
+                continue
             if attribute_up == 'health':
                 self.DEFAULT_HEALTH += 5
             elif attribute_up == 'defense':
