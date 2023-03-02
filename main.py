@@ -5,7 +5,6 @@
 from random import choice
 from typing import Type, Optional
 
-from graphic_arts.start_game_banner import run_screensaver
 from hero_classes import Hero, Mage, Berserk, Healer
 from enemy_classes import Enemy, ENEMY_LIST
 import text
@@ -140,7 +139,6 @@ def path(hero) -> None:
 
 
 if __name__ == '__main__':
-    run_screensaver()
     print('Приветствую тебя, искатель приключений!')
     print('Сейчас у тебя класс Новичок, но ты можешь выбрать один из трех '
           'путей силы:')
