@@ -154,6 +154,7 @@ class Hero(Charactor):
             else:
                 self.DEFAULT_ATTACK += 4
 
+            self.recovery()
             self.status()
             break
 

@@ -3,11 +3,15 @@
 В приключении игрока ждут бои с разнообразными противниками
 """
 from random import choice
-from typing import Type, Optional
+from typing import Type, Optional, Union
+import json
 
 from hero_classes import Hero, Mage, Berserk, Healer
 from enemy_classes import Enemy, ENEMY_LIST
 import text
+
+# Обозначим файл сохранений
+SAVE_FILE = 'game_save.json'
 
 
 def choice_hero_class() -> Hero:
@@ -113,6 +117,7 @@ def battle(hero: Hero, enemy: Enemy):
         print('Здоровье восстановлено.\n')
         hero.recovery()
         hero.level_up()
+        hero.recovery()
 
     else:
         print('{} победил в битве'.format(enemy.name))
@@ -135,15 +140,63 @@ def path(hero) -> None:
             print(text.CMD_NOT_FOUND.format(path_choice))
             continue
         battle(hero, meet_enemy())
+        save_game(hero)
     print(text.GAME_OVER)
+
+
+def save_game(hero: Hero) -> None:
+    """Записывает состояние персонажа в файл."""
+    state: dict[str, Union[str, int]] = {
+        'class': hero.name,
+        'level': hero.level,
+        'health': hero.health,
+        'defense': hero.defense,
+        'attack': hero.attack
+    }
+    with open(SAVE_FILE, 'w') as save:
+        json.dump(state, save)
+
+
+def load_game() -> Optional[Hero]:
+    """Загружает сохраниение из файла и возвращает состояние персонажа."""
+    HERO_CLASSES: dict[str, Type[Hero]] = {'Берсерк': Berserk,
+                                           'Маг': Mage,
+                                           'Травница': Healer,
+                                           'Новичок': Hero}
+    try:
+        with open(SAVE_FILE, 'r') as save:
+            state = json.load(save)
+    except (FileNotFoundError, json.JSONDecodeError):
+        return None
+    try:
+        hero_class_name: str = state['class']
+        hero_class: Type[Hero] = HERO_CLASSES[hero_class_name]
+        if hero_class:
+            hero = hero_class()
+            hero.level = state['level']
+            hero.health = state['health']
+            hero.defense = state['defense']
+            hero.attack = state['attack']
+            return hero
+    except KeyError as exc:
+        print('Некорректное сохранение. Отсутствует поле %s.' % exc)
+        return None
+    return None
 
 
 if __name__ == '__main__':
     print('Приветствую тебя, искатель приключений!')
-    print('Сейчас у тебя класс Новичок, но ты можешь выбрать один из трех '
-          'путей силы:')
-    print('Берсерк, Маг, Травница')
-    hero: Hero = choice_hero_class()
+    saved_hero: Optional[Hero] = load_game()
+    if saved_hero:
+        print('Обнаружено сохранение. Чтобы продожить введи (Y): ')
+        if input().lower() == 'y':
+            hero: Hero = saved_hero
+        else:
+            print(text.WELCOME_MSG)
+            hero = choice_hero_class()
+    else:
+        print(text.WELCOME_MSG)
+        hero = choice_hero_class()
     start_training(hero)
     print('')
     print('Вы отправились в опасное приключение.\n')
